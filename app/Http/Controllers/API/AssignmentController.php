@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Models\Assignment;
+use Illuminate\Http\Request;
+
+class AssignmentController extends Controller
+{
+    public function index()
+    {
+        try {
+            $assignments = Assignment::with('course')->get();
+            return response()->json($assignments);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error retrieving assignments', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'due_date' => 'nullable|date',
+        ]);
+
+        try {
+            $assignment = Assignment::create($validated);
+            return response()->json($assignment, 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error creating assignment', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show(Assignment $assignment)
+    {
+        $assignment->load('course', 'submissions.student');
+        return response()->json($assignment);
+    }
+
+    public function update(Request $request, Assignment $assignment)
+    {
+        $validated = $request->validate([
+            'course_id' => 'sometimes|required|exists:courses,id',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'due_date' => 'nullable|date',
+        ]);
+
+        try {
+            $assignment->update($validated);
+            return response()->json($assignment);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error updating assignment', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function destroy(Assignment $assignment)
+    {
+        try {
+            $assignment->delete();
+            return response()->json(null, 204);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error deleting assignment', 'error' => $e->getMessage()], 500);
+        }
+    }
+}
