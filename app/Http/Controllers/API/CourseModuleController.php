@@ -4,10 +4,18 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\CourseModule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class CourseModuleController extends Controller
 {
+    use AuthorizesRequests;
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         try {
@@ -18,6 +26,12 @@ class CourseModuleController extends Controller
         }
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -34,12 +48,25 @@ class CourseModuleController extends Controller
         }
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\CourseModule  $courseModule
+     * @return \Illuminate\Http\Response
+     */
     public function show(CourseModule $courseModule)
     {
         $courseModule->load('course', 'materials');
         return response()->json($courseModule);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\CourseModule  $courseModule
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, CourseModule $courseModule)
     {
         $validated = $request->validate([
@@ -56,6 +83,12 @@ class CourseModuleController extends Controller
         }
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\CourseModule  $courseModule
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(CourseModule $courseModule)
     {
         try {

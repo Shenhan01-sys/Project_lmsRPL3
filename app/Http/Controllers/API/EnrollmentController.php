@@ -4,11 +4,19 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class EnrollmentController extends Controller
 {
+    use AuthorizesRequests;
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         try {
@@ -19,6 +27,12 @@ class EnrollmentController extends Controller
         }
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -40,12 +54,25 @@ class EnrollmentController extends Controller
         }
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Enrollment  $enrollment
+     * @return \Illuminate\Http\Response
+     */
     public function show(Enrollment $enrollment)
     {
         $enrollment->load(['student', 'course']);
         return response()->json($enrollment);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Enrollment  $enrollment
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, Enrollment $enrollment)
     {
         // Generally, enrollments are not updated. They are created or deleted.
@@ -53,6 +80,12 @@ class EnrollmentController extends Controller
         return response()->json(['message' => 'Enrollment updates are not typically supported.'], 405);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Enrollment  $enrollment
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(Enrollment $enrollment)
     {
         try {

@@ -4,10 +4,18 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class AssignmentController extends Controller
 {
+    use AuthorizesRequests;
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         try {
@@ -18,6 +26,12 @@ class AssignmentController extends Controller
         }
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,12 +49,25 @@ class AssignmentController extends Controller
         }
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Assignment  $assignment
+     * @return \Illuminate\Http\Response
+     */
     public function show(Assignment $assignment)
     {
         $assignment->load('course', 'submissions.student');
         return response()->json($assignment);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Assignment  $assignment
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, Assignment $assignment)
     {
         $validated = $request->validate([
@@ -58,6 +85,12 @@ class AssignmentController extends Controller
         }
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Assignment  $assignment
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(Assignment $assignment)
     {
         try {

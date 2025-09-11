@@ -22,6 +22,6 @@ class CourseModule extends Model
 
     public function materials()
     {
-        return $this->hasMany(Material::class);
+        return $this->hasMany(Material::class, 'module_id');
     }
 }

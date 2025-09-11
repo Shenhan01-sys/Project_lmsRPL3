@@ -4,10 +4,18 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller
 {
+    use AuthorizesRequests;
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         try {
@@ -18,6 +26,12 @@ class MaterialController extends Controller
         }
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,12 +49,25 @@ class MaterialController extends Controller
         }
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Material  $material
+     * @return \Illuminate\Http\Response
+     */
     public function show(Material $material)
     {
         $material->load('courseModule');
         return response()->json($material);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Material  $material
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, Material $material)
     {
         $validated = $request->validate([
@@ -58,6 +85,12 @@ class MaterialController extends Controller
         }
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Material  $material
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(Material $material)
     {
         try {
