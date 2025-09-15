@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use App\Models\Course;
 
 class AssignmentController extends Controller
 {
@@ -40,6 +41,11 @@ class AssignmentController extends Controller
             'description' => 'required|string',
             'due_date' => 'nullable|date',
         ]);
+
+        $course = Course::find($validated['course_id']);
+        if ($request->user()->id !== $course->instructor_id) {
+            return response()->json(['message' => 'You are not authorized to create assignments for this course.'], 403);
+        }
 
         try {
             $assignment = Assignment::create($validated);

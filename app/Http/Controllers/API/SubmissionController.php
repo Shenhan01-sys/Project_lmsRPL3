@@ -36,6 +36,7 @@ class SubmissionController extends Controller
      */
     public function store(Request $request)
     {
+        $StudentId = $request->user()->id;
         $validated = $request->validate([
             'assignment_id' => [
                 'required',
@@ -50,6 +51,9 @@ class SubmissionController extends Controller
             'feedback' => 'nullable|string',
         ]);
 
+        if($StudentId !== $validated['student_id']){
+            return response()->json(['message' => 'You are not authorized or a student to submit for this assignment.'], 403);
+        }
         try {
             $submission = Submission::create($validated);
             return response()->json($submission, 201);

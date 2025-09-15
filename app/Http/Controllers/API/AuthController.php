@@ -25,11 +25,14 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
+        $ValidatedEmail = strtolower($validated['email']);
+        $ValidatedName = ucfirst($validated['name']);
+
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'name' => $ValidatedName,
+            'email' => $ValidatedEmail,
             'password' => Hash::make($validated['password']),
-            'role' => 'admin', // Default role
+            'role' => 'student', // Default role
         ]);
 
         return response()->json([
@@ -54,7 +57,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Credentials yang diberikan salah'], 422);
+            return response()->json(['message' => 'Password yang diberikan salah'], 422);
         }
 
         // Revoke all old tokens
@@ -64,6 +67,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',
