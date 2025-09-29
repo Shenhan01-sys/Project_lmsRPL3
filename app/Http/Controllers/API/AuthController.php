@@ -32,7 +32,7 @@ class AuthController extends Controller
             'name' => $ValidatedName,
             'email' => $ValidatedEmail,
             'password' => Hash::make($validated['password']),
-            'role' => 'student', // Default role
+            'role' => 'admin', // Default role
         ]);
 
         return response()->json([
@@ -67,7 +67,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            
+
             'user' => $user,
             'access_token' => $token,
             'token_type' => 'Bearer',

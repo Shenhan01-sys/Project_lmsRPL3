@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('parents', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
+            $table->string('phone')->nullable();
             $table->string('password');
-            $table->enum('role', ['student', 'instructor', 'admin']);
-            $table->enum('level', ['SMP', 'SMA'])->nullable();
-            $table->foreignId('parent_id')->nullable(); // relasi ke tabel parents (FK ditambahkan di migrasi berikutnya)
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('parents');
     }
 };

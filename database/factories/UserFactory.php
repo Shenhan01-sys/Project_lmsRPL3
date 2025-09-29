@@ -23,11 +23,15 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $role = 'student';
+        $level = $role === 'student' ? fake()->randomElement(['SMP','SMA']) : null;
+
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
-            'role' => 'student', // Default role
+            'role' => $role,
+            'level' => $level,
         ];
     }
 

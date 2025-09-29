@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Parents;
 
 class User extends Authenticatable
 {
@@ -23,6 +24,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'level',
+        'parent_id',
     ];
 
     /**
@@ -61,5 +64,10 @@ class User extends Authenticatable
     public function submissions()
     {
         return $this->hasMany(Submission::class, 'student_id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Parents::class, 'parent_id');
     }
 }

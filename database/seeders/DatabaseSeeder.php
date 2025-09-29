@@ -9,6 +9,7 @@ use App\Models\CourseModule;
 use App\Models\Material;
 use App\Models\Assignment;
 use App\Models\Submission;
+use App\Models\Parents;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -26,13 +27,27 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
+            'level' => null,
         ]);
 
         // Create Instructors
-        $instructors = User::factory(10)->create(['role' => 'instructor']);
+        $instructors = User::factory(10)->create(['role' => 'instructor', 'level' => null]);
 
         // Create Students
+        // Students: level otomatis diisi SMP/SMA oleh factory
         $students = User::factory(50)->create(['role' => 'student']);
+
+        // Create Parents and link some students to parents
+        $parents = Parents::factory(20)->create();
+        // Assign each parent between 1-3 random students
+        $students->shuffle();
+        foreach ($parents as $parent) {
+            $count = rand(1, 3);
+            $children = $students->splice(0, $count);
+            foreach ($children as $child) {
+                $child->update(['parent_id' => $parent->id]);
+            }
+        }
 
         // Create Courses for each instructor
         $instructors->each(function ($instructor) {

@@ -8,6 +8,7 @@ use App\Http\Controllers\API\EnrollmentController;
 use App\Http\Controllers\API\MaterialController;
 use App\Http\Controllers\API\SubmissionController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\ParentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Grup untuk semua rute CRUD resource dengan prefix v1
     Route::prefix('v1')->group(function () {
+        Route::get('instructors', [UserController::class, 'indexInstructor'])->name('users.instructors');
         Route::apiResource('users', UserController::class);
         Route::apiResource('courses', CourseController::class);
         Route::apiResource('enrollments', EnrollmentController::class);
@@ -52,5 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('materials', MaterialController::class);
         Route::apiResource('assignments', AssignmentController::class);
         Route::apiResource('submissions', SubmissionController::class);
+        Route::apiResource('parents', ParentController::class);
+        Route::get('parents/{parent}/children', [ParentController::class, 'children'])->name('parents.children');
     });
 });
