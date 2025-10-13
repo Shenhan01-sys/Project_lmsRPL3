@@ -24,7 +24,8 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        // Admin dan instructor bisa lihat semua user
+        return in_array($user->role, ['admin', 'instructor']);
     }
 
     /**
@@ -32,7 +33,8 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return false;
+        // Admin bisa lihat semua, user bisa lihat diri sendiri
+        return $user->role === 'admin' || $user->id === $model->id;
     }
 
     /**
@@ -40,7 +42,8 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        // Hanya admin yang bisa create user baru
+        return $user->role === 'admin';
     }
 
     /**
@@ -48,7 +51,8 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return false;
+        // Admin bisa update semua, user bisa update diri sendiri
+        return $user->role === 'admin' || $user->id === $model->id;
     }
 
     /**
@@ -56,7 +60,9 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return false;
+        // Hanya admin yang bisa delete user
+        // Tidak boleh delete diri sendiri
+        return $user->role === 'admin' && $user->id !== $model->id;
     }
 
     /**

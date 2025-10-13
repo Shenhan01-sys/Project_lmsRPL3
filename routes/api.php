@@ -11,6 +11,8 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\ParentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\PasswordController;
+use App\Http\Controllers\API\FileUploadController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'File api.php berhasil diakses!']);
@@ -25,6 +27,8 @@ Route::get('/test', function () {
 */
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [PasswordController::class, 'forgotPassword']);
+Route::post('/reset-password', [PasswordController::class, 'resetPassword']);
 
 
 /*
@@ -43,6 +47,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Rute untuk logout
     Route::post('/logout', [AuthController::class, 'logout']);
+    
+    // Rute untuk password management (user harus login)
+    Route::post('/change-password', [PasswordController::class, 'changePassword']);
+    
+    // Rute untuk file upload
+    Route::prefix('upload')->group(function () {
+        Route::post('/profile-photo', [FileUploadController::class, 'uploadProfilePhoto']);
+        Route::post('/material/{materialId}', [FileUploadController::class, 'uploadMaterialFile']);
+        Route::post('/assignment/{assignmentId}', [FileUploadController::class, 'uploadAssignmentFile']);
+        Route::post('/submission/{submissionId}', [FileUploadController::class, 'uploadSubmissionFile']);
+        Route::delete('/file', [FileUploadController::class, 'deleteFile']);
+        Route::get('/file-info', [FileUploadController::class, 'getFileInfo']);
+    });
 
     // Grup untuk semua rute CRUD resource dengan prefix v1
     Route::prefix('v1')->group(function () {
@@ -54,6 +71,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('materials', MaterialController::class);
         Route::apiResource('assignments', AssignmentController::class);
         Route::apiResource('submissions', SubmissionController::class);
+        
+        // Routes untuk Grading System
+        Route::apiResource('grade-components', App\Http\Controllers\API\GradeComponentController::class);
+        Route::apiResource('grades', App\Http\Controllers\API\GradeController::class);
+        
+        // Routes khusus untuk grading
+        Route::post('/grades/bulk', [App\Http\Controllers\API\GradeController::class, 'bulkStore'])->name('grades.bulk');
+        Route::get('/grades/student', [App\Http\Controllers\API\GradeController::class, 'getStudentGrades'])->name('grades.student');
+        Route::get('/grades/course', [App\Http\Controllers\API\GradeController::class, 'getCourseGrades'])->name('grades.course');
         Route::apiResource('parents', ParentController::class);
         Route::get('parents/{parent}/children', [ParentController::class, 'children'])->name('parents.children');
     });

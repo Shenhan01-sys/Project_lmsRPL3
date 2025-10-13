@@ -86,5 +86,11 @@ class DatabaseSeeder extends Seeder
                 });
             }
         });
+
+        // Seed Grading System
+        $this->call([
+            GradeComponentSeeder::class,
+            GradeSeeder::class,
+        ]);
     }
 }

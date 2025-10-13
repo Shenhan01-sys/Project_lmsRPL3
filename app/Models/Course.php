@@ -35,4 +35,9 @@ class Course extends Model
     {
         return $this->hasMany(Assignment::class);
     }
+
+    public function gradeComponents()
+    {
+        return $this->hasMany(GradeComponent::class);
+    }
 }
