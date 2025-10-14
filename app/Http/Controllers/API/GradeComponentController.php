@@ -30,6 +30,9 @@ class GradeComponentController extends Controller
         ]);
 
         try {
+            // Authorization: Check if user can view grade components
+            $this->authorize('viewAny', GradeComponent::class);
+            
             $components = GradeComponent::where('course_id', $request->course_id)
                 ->with('course:id,course_name')
                 ->orderBy('created_at')
@@ -67,8 +70,8 @@ class GradeComponentController extends Controller
         ]);
 
         try {
-            // TODO: Add authorization check
-            // $this->authorize('manage-grades', Course::find($validated['course_id']));
+            // Authorization: Check if user can create grade components
+            $this->authorize('create', GradeComponent::class);
 
             $component = $this->gradingService->createGradeComponent(
                 $validated['course_id'], 
@@ -94,6 +97,9 @@ class GradeComponentController extends Controller
     public function show(GradeComponent $gradeComponent)
     {
         try {
+            // Authorization: Check if user can view this grade component
+            $this->authorize('view', $gradeComponent);
+            
             $gradeComponent->load(['course:id,course_name', 'grades.student:id,name']);
             
             return response()->json([
@@ -123,8 +129,8 @@ class GradeComponentController extends Controller
         ]);
 
         try {
-            // TODO: Add authorization check
-            // $this->authorize('manage-grades', $gradeComponent->course);
+            // Authorization: Check if user can update this grade component
+            $this->authorize('update', $gradeComponent);
 
             // Validasi bobot jika ada perubahan
             if (isset($validated['weight'])) {
@@ -162,8 +168,8 @@ class GradeComponentController extends Controller
     public function destroy(GradeComponent $gradeComponent)
     {
         try {
-            // TODO: Add authorization check
-            // $this->authorize('manage-grades', $gradeComponent->course);
+            // Authorization: Check if user can delete this grade component
+            $this->authorize('delete', $gradeComponent);
 
             // Check apakah ada grades yang sudah di-input
             $hasGrades = $gradeComponent->grades()->exists();

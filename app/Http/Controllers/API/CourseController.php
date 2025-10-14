@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
@@ -19,6 +20,7 @@ class CourseController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Course::class);
         try {
             $courses = Course::with('instructor')->get();
             return response()->json($courses);
@@ -35,6 +37,9 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
+        // Authorization: Check if user can create courses
+        $this->authorize('create', Course::class);
+        
         $validated = $request->validate([
             'course_code' => 'required|string|unique:courses,course_code',
             'course_name' => 'required|string|max:255',
@@ -58,6 +63,9 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
+        // Authorization: Check if user can view this course
+        $this->authorize('view', $course);
+        
         $course->load('instructor', 'enrollments.student', 'courseModules.materials', 'assignments');
         return response()->json($course);
     }
@@ -71,6 +79,9 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
+        // Authorization: Check if user can update this course
+        $this->authorize('update', $course);
+        
         $validated = $request->validate([
             'course_code' => ['sometimes', 'required', 'string', Rule::unique('courses')->ignore($course->id)],
             'course_name' => 'sometimes|required|string|max:255',
@@ -94,6 +105,9 @@ class CourseController extends Controller
      */
     public function destroy(Course $course)
     {
+        // Authorization: Check if user can delete this course
+        $this->authorize('delete', $course);
+        
         try {
             $course->delete();
             return response()->json(null, 204);

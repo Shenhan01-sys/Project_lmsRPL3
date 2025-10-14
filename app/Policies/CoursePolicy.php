@@ -13,7 +13,8 @@ class CoursePolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        // Semua role bisa lihat course list (untuk enrollment)
+        return in_array($user->role, ['admin', 'instructor', 'student', 'parent']);
     }
 
     /**
@@ -21,7 +22,28 @@ class CoursePolicy
      */
     public function view(User $user, Course $course): bool
     {
-        return true;
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'instructor') {
+            // Instructor bisa lihat course yang dia ajar
+            return $course->instructor_id === $user->id;
+        }
+
+        if ($user->role === 'student') {
+            // Student bisa lihat course yang dia ikuti atau course yang available untuk enrollment
+            return $user->enrollments()->where('course_id', $course->id)->exists() || true;
+        }
+
+        if ($user->role === 'parent') {
+            // Parent bisa lihat course yang anaknya ikuti
+            return $user->children()->whereHas('enrollments', function($query) use ($course) {
+                $query->where('course_id', $course->id);
+            })->exists();
+        }
+
+        return false;
     }
 
     /**

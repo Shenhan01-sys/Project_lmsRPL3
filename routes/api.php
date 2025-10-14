@@ -72,6 +72,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('assignments', AssignmentController::class);
         Route::apiResource('submissions', SubmissionController::class);
         
+        // Hybrid approach routes for discovery
+        Route::get('course-modules/browse', [CourseModuleController::class, 'browse'])->name('course-modules.browse');
+        Route::get('course-modules/my-modules', [CourseModuleController::class, 'myModules'])->name('course-modules.my');
+        Route::get('materials/browse', [MaterialController::class, 'browse'])->name('materials.browse');
+        Route::get('materials/my-materials', [MaterialController::class, 'myMaterials'])->name('materials.my');
+        
         // Routes untuk Grading System
         Route::apiResource('grade-components', App\Http\Controllers\API\GradeComponentController::class);
         Route::apiResource('grades', App\Http\Controllers\API\GradeController::class);

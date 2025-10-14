@@ -35,8 +35,8 @@ class GradeController extends Controller
         ]);
 
         try {
-            // TODO: Add authorization check
-            // $this->authorize('input-grades', GradeComponent::find($validated['grade_component_id']));
+            // Authorization: Check if user can create grades
+            $this->authorize('create', Grade::class);
 
             $options = [
                 'max_score' => $validated['max_score'] ?? null,
@@ -81,7 +81,8 @@ class GradeController extends Controller
         ]);
 
         try {
-            // TODO: Add authorization check untuk setiap grade component
+            // Authorization: Check if user can bulk input grades
+            $this->authorize('bulkInput', Grade::class);
 
             // Prepare data dengan options
             $gradesData = collect($validated['grades'])->map(function($grade) {
@@ -124,8 +125,8 @@ class GradeController extends Controller
         ]);
 
         try {
-            // TODO: Add authorization check
-            // $this->authorize('view-grades', ...);
+            // Authorization: Check if user can view grades
+            $this->authorize('viewAny', Grade::class);
 
             $grades = $this->gradingService->getStudentGrades(
                 $validated['student_id'], 
@@ -163,8 +164,8 @@ class GradeController extends Controller
         ]);
 
         try {
-            // TODO: Add authorization check
-            // $this->authorize('view-course-grades', Course::find($validated['course_id']));
+            // Authorization: Check if user can view course grades  
+            $this->authorize('viewStatistics', Grade::class);
 
             $summary = $this->gradingService->getCourseGradesSummary($validated['course_id']);
             $statistics = $this->gradingService->getCourseStatistics($validated['course_id']);
@@ -197,8 +198,8 @@ class GradeController extends Controller
         ]);
 
         try {
-            // TODO: Add authorization check
-            // $this->authorize('update', $grade);
+            // Authorization: Check if user can update this grade
+            $this->authorize('update', $grade);
 
             // Validasi score tidak melebihi max_score
             if (isset($validated['score']) && isset($validated['max_score'])) {
@@ -237,8 +238,8 @@ class GradeController extends Controller
     public function destroy(Grade $grade)
     {
         try {
-            // TODO: Add authorization check
-            // $this->authorize('delete', $grade);
+            // Authorization: Check if user can delete this grade
+            $this->authorize('delete', $grade);
 
             $grade->delete();
 

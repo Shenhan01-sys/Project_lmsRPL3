@@ -5,11 +5,15 @@ namespace App\Providers;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Grade;
+use App\Models\GradeComponent;
 use App\Models\Submission;
 use App\Models\User;
 use App\Policies\AssignmentPolicy;
 use App\Policies\CoursePolicy;
 use App\Policies\EnrollmentPolicy;
+use App\Policies\GradeComponentPolicy;
+use App\Policies\GradePolicy;
 use App\Policies\SubmissionPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -27,6 +31,8 @@ class AuthServiceProvider extends ServiceProvider
         Enrollment::class => EnrollmentPolicy::class,
         Assignment::class => AssignmentPolicy::class,
         Submission::class => SubmissionPolicy::class,
+        Grade::class => GradePolicy::class,
+        GradeComponent::class => GradeComponentPolicy::class,
     ];
 
     /**

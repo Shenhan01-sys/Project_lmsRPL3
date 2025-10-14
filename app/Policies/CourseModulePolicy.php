@@ -9,11 +9,25 @@ use Illuminate\Auth\Access\Response;
 class CourseModulePolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        return null;
+    }
+
+        /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        // Admin dan instructor bisa lihat semua course modules
+        // Student dan parent bisa lihat tapi akan difilter di view level
+        return in_array($user->role, ['admin', 'instructor', 'student', 'parent']);
     }
 
     /**
@@ -21,6 +35,25 @@ class CourseModulePolicy
      */
     public function view(User $user, CourseModule $courseModule): bool
     {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'instructor') {
+            // Instructor hanya bisa lihat module dari course yang dia ajar
+            return $courseModule->course->instructor_id === $user->id;
+        }
+
+        if (in_array($user->role, ['student', 'parent'])) {
+            // Student bisa lihat module dari course yang dia ikuti
+            // Parent bisa lihat module dari course yang anaknya ikuti
+            $enrolledCourses = $user->role === 'student' 
+                ? $user->enrollments()->pluck('course_id')
+                : $user->children()->with('enrollments')->get()->pluck('enrollments.*.course_id')->flatten();
+            
+            return $enrolledCourses->contains($courseModule->course_id);
+        }
+
         return false;
     }
 
@@ -29,7 +62,8 @@ class CourseModulePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        // Hanya admin dan instructor yang bisa create course modules
+        return in_array($user->role, ['admin', 'instructor']);
     }
 
     /**
@@ -37,6 +71,15 @@ class CourseModulePolicy
      */
     public function update(User $user, CourseModule $courseModule): bool
     {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'instructor') {
+            // Instructor hanya bisa update module dari course yang dia ajar
+            return $courseModule->course->instructor_id === $user->id;
+        }
+
         return false;
     }
 
@@ -45,6 +88,15 @@ class CourseModulePolicy
      */
     public function delete(User $user, CourseModule $courseModule): bool
     {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'instructor') {
+            // Instructor hanya bisa delete module dari course yang dia ajar
+            return $courseModule->course->instructor_id === $user->id;
+        }
+
         return false;
     }
 

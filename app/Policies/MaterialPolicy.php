@@ -9,11 +9,25 @@ use Illuminate\Auth\Access\Response;
 class MaterialPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        // Admin dan instructor bisa lihat semua materials
+        // Student dan parent bisa lihat tapi akan difilter di view level
+        return in_array($user->role, ['admin', 'instructor', 'student', 'parent']);
     }
 
     /**
@@ -21,6 +35,25 @@ class MaterialPolicy
      */
     public function view(User $user, Material $material): bool
     {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'instructor') {
+            // Instructor hanya bisa lihat material dari course yang dia ajar
+            return $material->courseModule->course->instructor_id === $user->id;
+        }
+
+        if (in_array($user->role, ['student', 'parent'])) {
+            // Student bisa lihat material dari course yang dia ikuti
+            // Parent bisa lihat material dari course yang anaknya ikuti
+            $enrolledCourses = $user->role === 'student' 
+                ? $user->enrollments()->pluck('course_id')
+                : $user->children()->with('enrollments')->get()->pluck('enrollments.*.course_id')->flatten();
+            
+            return $enrolledCourses->contains($material->courseModule->course_id);
+        }
+
         return false;
     }
 
@@ -29,7 +62,8 @@ class MaterialPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        // Hanya admin dan instructor yang bisa create materials
+        return in_array($user->role, ['admin', 'instructor']);
     }
 
     /**
@@ -37,6 +71,15 @@ class MaterialPolicy
      */
     public function update(User $user, Material $material): bool
     {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'instructor') {
+            // Instructor hanya bisa update material dari course yang dia ajar
+            return $material->courseModule->course->instructor_id === $user->id;
+        }
+
         return false;
     }
 
@@ -45,6 +88,15 @@ class MaterialPolicy
      */
     public function delete(User $user, Material $material): bool
     {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'instructor') {
+            // Instructor hanya bisa delete material dari course yang dia ajar
+            return $material->courseModule->course->instructor_id === $user->id;
+        }
+
         return false;
     }
 
