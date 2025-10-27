@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartDev LMS - Registration Test</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        button { padding: 8px 16px; margin: 5px; }
+        input, select { padding: 5px; margin: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SmartDev LMS - Registration System Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Register New Calon Siswa</h3>
+            <input type="text" id="name" placeholder="Nama Lengkap" value="Test User">
+            <input type="email" id="email" placeholder="Email" value="test@example.com">
+            <input type="tel" id="phone" placeholder="No. HP" value="081234567890">
+            <input type="password" id="password" placeholder="Password" value="password">
+            <input type="password" id="password_confirmation" placeholder="Konfirmasi Password" value="password">
+            <br>
+            <input type="text" id="tanggal_lahir" placeholder="Tanggal Lahir (YYYY-MM-DD)" value="2005-01-01">
+            <input type="text" id="tempat_lahir" placeholder="Tempat Lahir" value="Jakarta">
+            <select id="jenis_kelamin">
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
+            </select>
+            <br>
+            <input type="text" id="nama_orang_tua" placeholder="Nama Orang Tua" value="Budi Santoso">
+            <input type="tel" id="phone_orang_tua" placeholder="HP Orang Tua" value="081234567891">
+            <input type="text" id="alamat_orang_tua" placeholder="Alamat Orang Tua" value="Jakarta">
+            <br>
+            <button onclick="registerCalonSiswa()">Register</button>
+            <div id="register-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Login and Get Token</h3>
+            <input type="email" id="login-email" placeholder="Email" value="ahmad.calon@test.com">
+            <input type="password" id="login-password" placeholder="Password" value="password">
+            <button onclick="login()">Login</button>
+            <div id="login-result" class="result"></div>
+            <div id="token-display" class="result" style="display:none;">
+                <strong>Token:</strong> <span id="auth-token"></span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Check Registration Status</h3>
+            <button onclick="checkStatus()">Check Status</button>
+            <div id="status-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Admin: Get Pending Registrations</h3>
+            <input type="email" id="admin-email" placeholder="Admin Email" value="admin@smartdev.com">
+            <input type="password" id="admin-password" placeholder="Admin Password" value="password">
+            <button onclick="adminLogin()">Admin Login</button>
+            <button onclick="getPendingRegistrations()">Get Pending</button>
+            <div id="admin-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+        let adminToken = '';
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        async function registerCalonSiswa() {
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                password_confirmation: document.getElementById('password_confirmation').value,
+                tanggal_lahir: document.getElementById('tanggal_lahir').value,
+                tempat_lahir: document.getElementById('tempat_lahir').value,
+                jenis_kelamin: document.getElementById('jenis_kelamin').value,
+                nama_orang_tua: document.getElementById('nama_orang_tua').value,
+                phone_orang_tua: document.getElementById('phone_orang_tua').value,
+                alamat_orang_tua: document.getElementById('alamat_orang_tua').value,
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/register-calon-siswa`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                document.getElementById('register-result').innerHTML = 
+                    `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                    
+                if (result.success) {
+                    document.getElementById('register-result').className = 'result success';
+                } else {
+                    document.getElementById('register-result').className = 'result error';
+                }
+            } catch (error) {
+                document.getElementById('register-result').innerHTML = 
+                    `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        async function login() {
+            const data = {
+                email: document.getElementById('login-email').value,
+                password: document.getElementById('login-password').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                document.getElementById('login-result').innerHTML = 
+                    `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                    
+                if (result.token || result.access_token) {
+                    authToken = result.token || result.access_token;
+                    document.getElementById('auth-token').textContent = authToken;
+                    document.getElementById('token-display').style.display = 'block';
+                    document.getElementById('login-result').className = 'result success';
+                } else {
+                    document.getElementById('login-result').className = 'result error';
+                }
+            } catch (error) {
+                document.getElementById('login-result').innerHTML = 
+                    `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        async function checkStatus() {
+            if (!authToken) {
+                document.getElementById('status-result').innerHTML = 
+                    '<span class="error">Please login first</span>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/registration/status`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                document.getElementById('status-result').innerHTML = 
+                    `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                    
+                if (response.ok) {
+                    document.getElementById('status-result').className = 'result success';
+                } else {
+                    document.getElementById('status-result').className = 'result error';
+                }
+            } catch (error) {
+                document.getElementById('status-result').innerHTML = 
+                    `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        async function adminLogin() {
+            const data = {
+                email: document.getElementById('admin-email').value,
+                password: document.getElementById('admin-password').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.token || result.access_token) {
+                    adminToken = result.token || result.access_token;
+                    document.getElementById('admin-result').innerHTML = 
+                        `<span class="success">Admin logged in successfully</span>`;
+                } else {
+                    document.getElementById('admin-result').innerHTML = 
+                        `<span class="error">Admin login failed</span>`;
+                }
+            } catch (error) {
+                document.getElementById('admin-result').innerHTML = 
+                    `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        async function getPendingRegistrations() {
+            if (!adminToken) {
+                document.getElementById('admin-result').innerHTML = 
+                    '<span class="error">Please login as admin first</span>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/registrations/pending`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                document.getElementById('admin-result').innerHTML = 
+                    `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                    
+                if (response.ok) {
+                    document.getElementById('admin-result').className = 'result success';
+                } else {
+                    document.getElementById('admin-result').className = 'result error';
+                }
+            } catch (error) {
+                document.getElementById('admin-result').innerHTML = 
+                    `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

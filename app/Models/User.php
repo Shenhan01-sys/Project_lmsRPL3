@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\StudentRegistration;
 use App\Models\Parents;
 use App\Notifications\PasswordResetNotification;
 
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
         'role',
         'level',
         'parent_id',
@@ -51,6 +53,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function studentRegistration()
+    {
+        return $this->hasOne(StudentRegistration::class);
     }
 
     public function taughtCourses()

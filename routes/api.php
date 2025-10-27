@@ -30,6 +30,15 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [PasswordController::class, 'forgotPassword']);
 Route::post('/reset-password', [PasswordController::class, 'resetPassword']);
 
+// Registration routes for calon siswa
+Route::post('/register-calon-siswa', [App\Http\Controllers\API\RegistrationController::class, 'registerCalonSiswa']);
+
+// Routes that require authentication but not full user verification
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/upload-documents', [App\Http\Controllers\API\RegistrationController::class, 'uploadDocuments']);
+    Route::get('/registration-status', [App\Http\Controllers\API\RegistrationController::class, 'getRegistrationStatus']);
+});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +86,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('course-modules/my-modules', [CourseModuleController::class, 'myModules'])->name('course-modules.my');
         Route::get('materials/browse', [MaterialController::class, 'browse'])->name('materials.browse');
         Route::get('materials/my-materials', [MaterialController::class, 'myMaterials'])->name('materials.my');
+        
+        // Registration management routes (Admin only)
+        Route::get('registrations/pending', [App\Http\Controllers\API\RegistrationController::class, 'getPendingRegistrations'])->name('registrations.pending');
+        Route::get('registrations', [App\Http\Controllers\API\RegistrationController::class, 'getAllRegistrations'])->name('registrations.all');
+        Route::post('registrations/{user}/approve', [App\Http\Controllers\API\RegistrationController::class, 'approveRegistration'])->name('registrations.approve');
+        Route::post('registrations/{user}/reject', [App\Http\Controllers\API\RegistrationController::class, 'rejectRegistration'])->name('registrations.reject');
         
         // Routes untuk Grading System
         Route::apiResource('grade-components', App\Http\Controllers\API\GradeComponentController::class);
